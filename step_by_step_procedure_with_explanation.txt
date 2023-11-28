@@ -6,41 +6,57 @@ Hosting Procedure for Django Application on AWS Ubuntu Server
 
 2. Initial Setup:
 #Update the system and install essential packages.
+#This code updates the system and installs essential packages including Python 3, pip, development libraries, PostgreSQL, Nginx, and curl.
+
 
 sudo apt update
 sudo apt install python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx curl
 
+
 3. Database Setup:
 #Connect to the PostgreSQL database.
+#This command enters the PostgreSQL interactive terminal.
+
 
 sudo -u postgres psql
 
+
 #Create a Database and User.
-PostgreSQL
+#These SQL commands create a PostgreSQL database, a user, and grant privileges to the user on the created database.
+
 
 CREATE DATABASE yourdatabase;
 CREATE USER yourdatabaseuser WITH PASSWORD 'yourpassword';
 GRANT ALL PRIVILEGES ON DATABASE yourdatabase TO yourdatabaseuser;
 \q
 
+
 4. Update PIP and Install Virtualenv:
 #Update PIP and install Virtualenv for Python environment isolation.
+#These commands update pip to the latest version and install the virtual environment tool.
+
 
 sudo -H pip3 install --upgrade pip
 sudo -H pip3 install virtualenv
 
+
 5. Project Setup:
 #Create a directory (optional) and a virtual environment.
+#These commands create a directory, set up a virtual environment, and activate it.
+
 
 mkdir ~/yourprojectdir
 cd ~/yourprojectdir
 virtualenv yourprojectenv
 source yourprojectenv/bin/activate
 
+
 6. Clone the Django Project:
 #Clone your Django project from GitHub.
 
+
 git clone https://github.com/yourusername/yourproject.git
+
 
 7. Configure Django Settings:
 #Open the settings file and update configurations.
@@ -58,34 +74,47 @@ DATABASES = {
     }
 }
 
+
 #Static Configuration:
+
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+
 8. Install Dependencies and Migrate:
 #Install project dependencies and perform migrations.
+
 
 pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 
+
 9. Create Superuser and Collect Static:
-#Create a superuser and collect static files.
+#These commands create a superuser for the Django admin and collect static files.
+
 
 python manage.py createsuperuser
 python manage.py collectstatic
 
+
 10. Deactivate Virtual Environment:
 #Deactivate the virtual environment.
 
+
 deactivate
 
+
 11. Gunicorn Setup:
-#Create a Gunicorn systemd socket file.
+#These commands create a superuser for the Django admin and collect static files.
+
 
 sudo nano /etc/systemd/system/gunicorn.socket
 
+
 #Add the following content:
+#This is the systemd socket unit file for Gunicorn, configuring it to listen on a Unix domain socket.
+
 
 [Unit]
 Description=gunicorn socket
@@ -96,11 +125,17 @@ ListenStream=/run/gunicorn.sock
 [Install]
 WantedBy=sockets.target
 
-#Create a Gunicorn systemd service file.
+
+#Opens a text editor to create/edit the Gunicorn service systemd unit file.
+
 
 sudo nano /etc/systemd/system/gunicorn.service
 
+
 #Add the following content:
+#This is the systemd service unit file for Gunicorn, specifying its configuration, working directory, and how it should be started.
+#These configurations set up Gunicorn as a systemd service with a socket for Nginx communication.
+
 
 [Unit]
 Description=gunicorn daemon
@@ -120,10 +155,79 @@ ExecStart=/home/ubuntu/yourprojectenv/bin/gunicorn \
 [Install]
 WantedBy=multi-user.target
 
-12. Nginx Configuration:
-#Create an Nginx configuration file.
 
-#nginx
+# Start and enable Gunicorn socket
+
+
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+
+
+# Checking Gunicorn socket status
+
+
+sudo systemctl status gunicorn.socket
+
+
+# Checking existing Gunicorn socket file
+
+
+file /run/gunicorn.sock
+
+
+# Checking Gunicorn socket with journalctl
+
+
+sudo journalctl -u gunicorn.socket
+
+
+# Testing Gunicorn socket activation
+
+
+sudo systemctl status gunicorn
+
+
+# Test the Gunicorn socket activation with curl
+
+
+curl --unix-socket /run/gunicorn.sock localhost
+
+
+# Gunicorn status
+
+
+sudo systemctl status gunicorn
+
+
+# Gunicorn check with journalctl
+
+
+sudo journalctl -u gunicorn
+
+
+# Systemd reload (optional)
+
+
+sudo systemctl daemon-reload
+
+
+# Restarting systemd (optional)
+
+
+sudo systemctl restart gunicorn
+
+
+# Configure Nginx
+
+
+sudo nano /etc/nginx/sites-available/myproject
+
+
+12. Nginx Configuration:
+#This opens a text editor to create/edit the Nginx server block configuration file.
+#This Nginx configuration file defines a server block, specifying how Nginx should handle requests for the Django application.
+
+
 server {
     listen 80;
     server_name server_domain_or_IP;
@@ -139,21 +243,28 @@ server {
     }
 }
 
-#Enable the Nginx configuration.
+
+#This command creates a symbolic link to enable the Nginx server block configuration.  
+
 
 sudo ln -s /etc/nginx/sites-available/yourproject /etc/nginx/sites-enabled
 
+
 13. Test Nginx Configuration and Restart:
-#Test the Nginx configuration and restart.
+#These commands test the Nginx configuration for syntax errors and restart Nginx.
+
 
 sudo nginx -t
 sudo systemctl restart nginx
 
+
 14. Remove Firewall Rule and Allow Nginx:
-#Remove a firewall rule and allow Nginx.
+#These commands remove a firewall rule and allow Nginx traffic.
+ 
 
 sudo ufw delete allow 8000
 sudo ufw allow 'Nginx Full'
+
 
 
 #This guide provides a step-by-step process for hosting a Django application on an AWS Ubuntu server.
