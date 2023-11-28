@@ -1,22 +1,21 @@
 Hosting Procedure for Django Application on AWS Ubuntu Server
 
 1. Create an Instance in AWS:
-Launch an EC2 instance with Ubuntu as the operating system.
-Copy the key from AWS and open the terminal in the .pem file directory.
+#Launch an EC2 instance with Ubuntu as the operating system.
+#Copy the key from AWS and open the terminal in the .pem file directory.
 
 2. Initial Setup:
-Update the system and install essential packages.
+#Update the system and install essential packages.
 
 sudo apt update
 sudo apt install python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx curl
 
 3. Database Setup:
-Connect to the PostgreSQL database.
+#Connect to the PostgreSQL database.
 
 sudo -u postgres psql
 
-Create a Database and User.
-
+#Create a Database and User.
 PostgreSQL
 
 CREATE DATABASE yourdatabase;
@@ -25,13 +24,13 @@ GRANT ALL PRIVILEGES ON DATABASE yourdatabase TO yourdatabaseuser;
 \q
 
 4. Update PIP and Install Virtualenv:
-Update PIP and install Virtualenv for Python environment isolation.
+#Update PIP and install Virtualenv for Python environment isolation.
 
 sudo -H pip3 install --upgrade pip
 sudo -H pip3 install virtualenv
 
 5. Project Setup:
-Create a directory (optional) and a virtual environment.
+#Create a directory (optional) and a virtual environment.
 
 mkdir ~/yourprojectdir
 cd ~/yourprojectdir
@@ -39,14 +38,13 @@ virtualenv yourprojectenv
 source yourprojectenv/bin/activate
 
 6. Clone the Django Project:
-Clone your Django project from GitHub.
+#Clone your Django project from GitHub.
 
 git clone https://github.com/yourusername/yourproject.git
 
 7. Configure Django Settings:
-Open the settings file and update configurations.
-
-Database Configuration:
+#Open the settings file and update configurations.
+#Database Configuration:
 
 
 DATABASES = {
@@ -60,34 +58,34 @@ DATABASES = {
     }
 }
 
-Static Configuration:
+#Static Configuration:
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 8. Install Dependencies and Migrate:
-Install project dependencies and perform migrations.
+#Install project dependencies and perform migrations.
 
 pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 
 9. Create Superuser and Collect Static:
-Create a superuser and collect static files.
+#Create a superuser and collect static files.
 
 python manage.py createsuperuser
 python manage.py collectstatic
 
 10. Deactivate Virtual Environment:
-Deactivate the virtual environment.
+#Deactivate the virtual environment.
 
 deactivate
 
 11. Gunicorn Setup:
-Create a Gunicorn systemd socket file.
+#Create a Gunicorn systemd socket file.
 
 sudo nano /etc/systemd/system/gunicorn.socket
 
-Add the following content:
+#Add the following content:
 
 [Unit]
 Description=gunicorn socket
@@ -98,10 +96,11 @@ ListenStream=/run/gunicorn.sock
 [Install]
 WantedBy=sockets.target
 
-Create a Gunicorn systemd service file.
+#Create a Gunicorn systemd service file.
 
 sudo nano /etc/systemd/system/gunicorn.service
-Add the following content:
+
+#Add the following content:
 
 [Unit]
 Description=gunicorn daemon
@@ -120,10 +119,11 @@ ExecStart=/home/ubuntu/yourprojectenv/bin/gunicorn \
 
 [Install]
 WantedBy=multi-user.target
-12. Nginx Configuration:
-Create an Nginx configuration file.
 
-nginx
+12. Nginx Configuration:
+#Create an Nginx configuration file.
+
+#nginx
 server {
     listen 80;
     server_name server_domain_or_IP;
@@ -139,21 +139,21 @@ server {
     }
 }
 
-Enable the Nginx configuration.
+#Enable the Nginx configuration.
 
 sudo ln -s /etc/nginx/sites-available/yourproject /etc/nginx/sites-enabled
 
 13. Test Nginx Configuration and Restart:
-Test the Nginx configuration and restart.
+#Test the Nginx configuration and restart.
 
 sudo nginx -t
 sudo systemctl restart nginx
 
 14. Remove Firewall Rule and Allow Nginx:
-Remove a firewall rule and allow Nginx.
+#Remove a firewall rule and allow Nginx.
 
 sudo ufw delete allow 8000
 sudo ufw allow 'Nginx Full'
 
 
-This guide provides a step-by-step process for hosting a Django application on an AWS Ubuntu server.
+#This guide provides a step-by-step process for hosting a Django application on an AWS Ubuntu server.
