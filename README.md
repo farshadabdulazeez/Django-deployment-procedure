@@ -1,1 +1,3 @@
-# Django-deployment-procedure
+Deploy Django Application using gunicorn & Nginx in Production on AWS Ubuntu server
+
+This repository provides a streamlined deployment procedure for hosting Django applications in a production environment using Gunicorn and Nginx on an AWS Ubuntu server. Ensuring a robust and scalable setup, the deployment process is designed to simplify the deployment of your Django web application, optimizing it for production-level performance. Follow the steps outlined here to efficiently deploy and run your Django project on AWS, utilizing industry-standard tools and best practices for a secure and reliable production environment.
